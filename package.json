@@ -1,11 +1,12 @@
 {
   "name": "crypto-dashboard",
   "version": "0.1.0",
+  "api_version": "0.1.0",
   "description": "Open source dashboard for managing cryptocurrency portfolio",
   "main": "dist",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
-    "build": "babel src -s -D -d dist --presets es2015,stage-0",
+    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-3\"",
+    "build": "babel src -s -D -d dist --presets es2015,stage-3",
     "start": "node dist",
     "prestart": "npm run -s build",
     "test": "eslint src"
@@ -35,11 +36,14 @@
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
+    "gdax": "^0.4.2",
     "morgan": "^1.8.0",
+    "node-bittrex-api": "^0.8.1",
+    "poloniex.js": "^0.0.7",
     "resource-router-middleware": "^0.6.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.9.0",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.9.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-0": "^6.5.0",

@@ -1,0 +1,151 @@
+import ExchangeAuth from './exchange_auth.js'
+
+export default class {
+    constructor(exchanges) {
+        this.exchanges = exchanges
+        this.exchange_auth = new ExchangeAuth()
+    }
+
+    /**
+    * getPrice
+    * Returns a price object of the form:
+    * 
+    * price = {
+    *   "BTC-USD": 9502.22
+    * }
+    * 
+    * @param {*} exchange 
+    * @param {*} product 
+    */
+    getPrice(exchange, product) {
+        return new Promise(function (resolve, reject) {
+            if (exchange == 'GDAX') {
+                const gdaxPublicClient = new Gdax.PublicClient(product);
+                this.exchange_auth.gdaxPublicClient.getProductTicker((error, response, data) => {
+                    if (error) {
+                        reject(Error(error));
+                    } else {
+                        var price_obj = {}
+                        var price = data['price'];
+                        price_obj[product] = price;
+                        resolve(price_obj);
+                    }
+                });
+            }
+
+            if (exchange == 'POLONIEX') {
+                this.exchange_auth.poloniex.returnTicker(function (err, data) {
+                    if (err) {
+                        reject(Error(error));
+                    } else {
+                        var price_obj = {}
+                        var price = data[product]['last']
+                        price_obj[product] = price;
+                        resolve(price_obj);
+                    }
+                });
+            }
+        }.bind(this));
+    }
+
+    async getBalances() {
+        var getBalanceCalls = []
+        return new Promise(function (resolve, reject) {
+            this.exchanges.forEach(function (exchange) {
+                var functionCall = this.getExchangeBalance(exchange)
+                getBalanceCalls.push(functionCall)
+            }.bind(this))
+            Promise.all(getBalanceCalls).then(function (balances) {
+                resolve(balances)
+            }, function (err) {
+                reject(Error(err))
+            })
+        }.bind(this)) // Required in order to access "this" from Balance class
+    }
+
+    async getExchangeBalance(exchange) {
+        return new Promise(function (resolve, reject) {
+            if (exchange == 'GDAX') {
+                this.exchange_auth.gdaxAuthedClient.getAccounts((error, response, data) => {
+                    if (error) {
+                        reject(Error(error))
+                    } else {
+                        var exchangeBalance = {}
+                        var currencyBalances = []
+                        var priceFunctionCalls = []
+                        data.forEach(function (wallet) {
+                            var currency = wallet['currency']
+                            var balance_amount = parseFloat(wallet['balance'])
+                            var balance = {}
+                            var balance_obj = {}
+                            // Create array of function calls for promise.all
+                            if (currency !== 'USD' && balance_amount > 0.0) {
+                                priceFunctionCalls.push(this.getPrice(exchange, currency + '-USD'))
+                            } else {
+                                usd_value = balance_amount
+                                balance_obj['usd_value'] = usd_value
+                            }
+                            balance_obj['amount'] = balance_amount
+                            balance[currency] = balance_obj
+                            currencyBalances.push(balance)
+                        })
+                        Promise.all(priceFunctionCalls).then(function (prices) {
+                            return prices
+                        })
+                            .then(prices => {
+                                console.log("prices: " + prices)
+                                prices.forEach(function (price) {
+                                    currencyBalances.forEach(function (balance) {
+                                        // console.log(balance)
+                                        key = Object.keys(price)[0].split("-")[0]
+                                        if (balance[key] != undefined) {
+                                            usd_value = balance[key]['amount'] * price[Object.keys(price)[0]]
+                                            balance[key]['usd_value'] = usd_value
+                                        }
+                                    })
+                                })
+                                exchangeBalance[exchange] = currencyBalances
+                                resolve(exchangeBalance)
+                            })
+                    }
+                })
+            }
+            if (exchange == 'POLONIEX') {
+                this.exchange_auth.poloniex.returnCompleteBalances(function (err, data) {
+                    if (err) {
+                        reject(Error(error))
+                    } else {
+                        // TODO: detect data.error
+                        var exchangeBalance = {}
+                        var currencyBalances = []
+                        // console.log(data)
+                        // TODO: implement this:
+                        var btc_usd = this.getPrice(exchange, 'USDT_BTC')
+                            .then(price => {
+                                for (var currency in data) {
+                                    var balance_amount = parseFloat(data[currency]['available']) + parseFloat(data[currency]['onOrders'])
+                                    var balance_obj = {}
+                                    if (currency === "USDT") {
+                                        var usd_value = balance_amount
+                                    } else {
+                                        var btc_value = parseFloat(data[currency]['btcValue'])
+                                        var usd_value = btc_value * price[Object.keys(price)[0]]
+                                    }
+                                    if (balance_amount > 0.0) {
+                                        var balance = {}
+                                        balance_obj['amount'] = balance_amount
+                                        balance_obj['usd_value'] = usd_value
+                                        balance[currency] = balance_obj
+                                        currencyBalances.push(balance)
+                                    }
+                                }
+                                exchangeBalance[exchange] = currencyBalances
+                                resolve(exchangeBalance)
+                            })
+                    }
+                }.bind(this))
+            }
+            // TODO: Add Bittrex
+        }.bind(this))
+    }
+}

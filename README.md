@@ -68,7 +68,7 @@ This repository has a pre-commit script that will check for api keys and prevent
 
 ## Package Info
 - [GDAX node.js](https://github.com/coinbase/gdax-node)
-- [poloniex.js](https://github.com/premasagar/poloniex.js?utm_source=recordnotfound.com)
+- [poloniex.js](https://github.com/premasagar/poloniex.js)
 - [Express ES6 API Starter](https://github.com/developit/express-es6-rest-api)
 - ES6 support via [babel](https://babeljs.io)
 - REST resources as middleware via [resource-router-middleware](https://github.com/developit/resource-router-middleware)
