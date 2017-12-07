@@ -85,12 +85,24 @@ export default {
             for (var coin in this.balances[item][exchange]) {
               var coinName = Object.keys(this.balances[item][exchange][coin])[0]
               var coinValue = this.balances[item][exchange][coin][coinName]['usd_value']
-              var coinPieSlice = ([coinName, coinValue])
-              pieChartDataArray.push(coinPieSlice)
+              var existingCoin = false
+              pieChartDataArray.forEach(function (entry) {
+                if (entry[0] === coinName) {
+                  console.log(entry)
+                  entry[1] = entry[1] + coinValue
+                  existingCoin = true
+                }
+              })
+              if (!existingCoin) {
+                var coinPieSlice = [coinName, coinValue]
+                pieChartDataArray.push(coinPieSlice)
+                existingCoin = false
+              }
             }
           }
         }
       }
+      console.log(pieChartDataArray)
       this.pie_chart_data = pieChartDataArray
     }
   }

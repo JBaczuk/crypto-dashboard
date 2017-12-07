@@ -2,6 +2,11 @@
 
 > This is an open source project for managing your cryptocurrency portfolio.
 
+## Components
+This project has two parts:
+1. Self-hosted API (root folder)
+2. Single Page Application (dashboard folder)
+
 ## Getting Started
 ---
 
