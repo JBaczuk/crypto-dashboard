@@ -1,10 +1,9 @@
 # Crypto Dashboard
-==================================
 
 > This is an open source project for managing your cryptocurrency portfolio.
 
 ## Getting Started
----------------
+---
 
 ```sh
 # clone it
@@ -49,14 +48,15 @@ docker run -p 8080:8080 crypto-dashboard
 ```
 ## Release
 ### v1.0.0
+- Currently supports GDAX, Poloniex, and Bittrex
+- Dashboard using vue.js
+- Calculate profit
 > In progress
-- Currently supports GDAX and Poloniex
-- Add support for Bittrex and coinbase
+- Price Charts
 
 ## Future
 - Add support for other exchanges
 - Add history of deposits and withdrawals
-- Calculate profit
 - Chart trade and price history
 - Add trade ability
 - Add bot dashboard
