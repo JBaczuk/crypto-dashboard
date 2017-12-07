@@ -24,10 +24,10 @@ export BITTREX_SECRET=
 yarn install
 
 # Start development live-reload server
-PORT=8080 npm run dev
+PORT=8000 npm run dev
 
 # Start production server:
-PORT=8080 npm start
+PORT=8000 npm start
 ```
 Docker Support
 ------
@@ -74,6 +74,8 @@ This repository has a pre-commit script that will check for api keys and prevent
 - REST resources as middleware via [resource-router-middleware](https://github.com/developit/resource-router-middleware)
 - CORS support via [cors](https://github.com/troygoode/node-cors)
 - Body Parsing via [body-parser](https://github.com/expressjs/body-parser)
+- [Chartkick](https://github.com/ankane/vue-chartkick)
+- [CoreUI Vue](https://github.com/mrholek/CoreUI-Vue)
 
 ## License
 -------
