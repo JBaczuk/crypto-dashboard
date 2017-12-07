@@ -27,4 +27,13 @@ npm run e2e
 npm test
 ```
 
+In another terminal (this is a hack):
+```bash
+cd tradingview
+python -m SimpleHTTPServer 8001
+```
+
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+## Resources
+- [Icons](http://simplelineicons.com/)

@@ -5,7 +5,7 @@
       <Sidebar :navItems="nav"/>
       <main class="main">
         <breadcrumb :list="list"/>
-        <div class="container-fluid">
+        <div class="container-fluid" style="height: 100%;">
           <router-view></router-view>
         </div>
       </main>

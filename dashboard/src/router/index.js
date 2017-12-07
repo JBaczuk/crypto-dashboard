@@ -6,6 +6,8 @@ import Full from '@/containers/Full'
 
 // Views
 import Dashboard from '@/views/Dashboard'
+import Charts from '@/views/Charts'
+import MarketOverview from '@/views/MarketOverview'
 
 Vue.use(Router)
 
@@ -24,6 +26,16 @@ export default new Router({
           path: 'dashboard',
           name: 'Dashboard',
           component: Dashboard
+        },
+        {
+          path: 'charts',
+          name: 'Charts',
+          component: Charts
+        },
+        {
+          path: 'market_overview',
+          name: 'Market Overview',
+          component: MarketOverview
         }
 
       ]
