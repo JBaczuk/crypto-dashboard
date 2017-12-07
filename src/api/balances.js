@@ -2,7 +2,7 @@ import resource from 'resource-router-middleware'
 import Balances from '../models/balances'
 
 // TODO: pull this from DB based on user
-var balance = new Balances(['POLONIEX'])
+var balance = new Balances(['BITTREX', 'POLONIEX'])
 
 export default ({ config, db }) => resource({
 
@@ -18,8 +18,7 @@ export default ({ config, db }) => resource({
 	index({ params }, res) {
 		balance.getBalances()
 		.then(function (all_balances) {
-			console.log(all_balances)
-			res.json("Dummy balance")
+			res.json(all_balances)
 		})
 	},
 

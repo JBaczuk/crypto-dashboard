@@ -20,32 +20,45 @@ export default class {
     getPrice(exchange, product) {
         return new Promise(function (resolve, reject) {
             if (exchange == 'GDAX') {
-                const gdaxPublicClient = new Gdax.PublicClient(product);
+                const gdaxPublicClient = new Gdax.PublicClient(product)
                 this.exchange_auth.gdaxPublicClient.getProductTicker((error, response, data) => {
                     if (error) {
-                        reject(Error(error));
+                        reject(Error(error))
                     } else {
                         var price_obj = {}
-                        var price = data['price'];
-                        price_obj[product] = price;
-                        resolve(price_obj);
+                        var price = data['price']
+                        price_obj[product] = price
+                        resolve(price_obj)
                     }
-                });
+                })
             }
 
             if (exchange == 'POLONIEX') {
                 this.exchange_auth.poloniex.returnTicker(function (err, data) {
                     if (err) {
-                        reject(Error(error));
+                        reject(Error(error))
                     } else {
                         var price_obj = {}
                         var price = data[product]['last']
-                        price_obj[product] = price;
-                        resolve(price_obj);
+                        price_obj[product] = price
+                        resolve(price_obj)
                     }
-                });
+                })
             }
-        }.bind(this));
+
+            if (exchange == 'BITTREX') {
+                this.exchange_auth.bittrex.getticker({ market: product }, function (data, err) {
+                    if (err) {
+                        reject(Error(JSON.stringify(err + " " + product)))
+                    } else {
+                        var price_obj = {}
+                        var price = data['result']['Last']
+                        price_obj[product] = price
+                        resolve(price_obj)
+                    }
+                })
+            }
+        }.bind(this))
     }
 
     async getBalances() {
@@ -57,7 +70,7 @@ export default class {
             }.bind(this))
             Promise.all(getBalanceCalls).then(function (balances) {
                 resolve(balances)
-            }, function (err) {
+            }, function (err) { // TODO: err is not defined
                 reject(Error(err))
             })
         }.bind(this)) // Required in order to access "this" from Balance class
@@ -93,10 +106,8 @@ export default class {
                             return prices
                         })
                             .then(prices => {
-                                console.log("prices: " + prices)
                                 prices.forEach(function (price) {
                                     currencyBalances.forEach(function (balance) {
-                                        // console.log(balance)
                                         key = Object.keys(price)[0].split("-")[0]
                                         if (balance[key] != undefined) {
                                             usd_value = balance[key]['amount'] * price[Object.keys(price)[0]]
@@ -118,7 +129,6 @@ export default class {
                         // TODO: detect data.error
                         var exchangeBalance = {}
                         var currencyBalances = []
-                        // console.log(data)
                         // TODO: implement this:
                         var btc_usd = this.getPrice(exchange, 'USDT_BTC')
                             .then(price => {
@@ -141,6 +151,61 @@ export default class {
                                 }
                                 exchangeBalance[exchange] = currencyBalances
                                 resolve(exchangeBalance)
+                            })
+                    }
+                }.bind(this))
+            }
+            if (exchange == 'BITTREX') {
+                this.exchange_auth.bittrex.getbalances(function (data, err) {
+                    if (err) {
+                        reject(Error(err))
+                    } else {
+                        // TODO: detect data.error
+                        var exchangeBalance = {}
+                        var currencyBalances = []
+                        var btc_usd = this.getPrice(exchange, 'USDT-BTC')
+                            .then(price => {
+                                var functionCalls = []
+                                for (var currency in data.result) {
+                                    var balance_amount = parseFloat(data.result[currency]['Balance'])
+                                    var balance_obj = {}
+                                    if (balance_amount > 0.0) {
+                                        var ticker = data.result[currency]['Currency']
+                                        var functionCall
+                                        if (ticker !== "USDT" && ticker !== "BTC") {
+                                            functionCall = this.getPrice(exchange, 'BTC-' + ticker)
+                                            functionCalls.push(functionCall)
+                                        } else {
+                                            // TODO: add USDT and BTC
+                                            var usd_value
+                                            if(ticker === "USDT") {
+                                                usd_value = balance_amount
+                                            }
+                                            else if(ticker === "BTC") {
+                                                usd_value = balance_amount * parseFloat(price[Object.keys(price)[0]])
+                                            }
+                                            var balance = {}
+                                            balance_obj['amount'] = balance_amount
+                                            balance_obj['usd_value'] = usd_value
+                                            balance[ticker] = balance_obj
+                                            currencyBalances.push(balance)
+                                        }
+                                    }
+                                }
+                                Promise.all(functionCalls).then(function (prices) {
+                                    for (var btc_price in prices) {
+                                        var key = Object.keys(prices[btc_price])[0].split("-")[1]
+                                        var btc_value = parseFloat(prices[btc_price][Object.keys(prices[btc_price])[0]])
+                                        var usd_value = btc_value * price[Object.keys(price)[0]]
+                                        var balance = {}
+                                        balance_obj['amount'] = balance_amount
+                                        balance_obj['usd_value'] = usd_value
+                                        balance[key] = balance_obj
+                                        currencyBalances.push(balance)
+                                    }
+                                    exchangeBalance[exchange] = currencyBalances
+                                    resolve(exchangeBalance)
+                                })
                             })
                     }
                 }.bind(this))
