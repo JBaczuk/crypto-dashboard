@@ -1,9 +1,26 @@
 <template>
   <div id="app">
-    <p>${{ balances }}</p>
-    <p>${{ portfolio_value }}</p>
-    <p>${{ portfolio_return }}</p>
-    <p>{{ portfolio_return_pct }}%</p>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col"></div>
+        <div class="col">
+          <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+              <h1 class="display-3">${{ portfolio_value }}</h1>
+              <p class="lead">{{ portfolio_return_pct }}%</p>
+            </div>
+          </div>
+        </div>
+        <div class="col"></div>
+      </div>
+      <div class="row">
+        <div class="col"></div>
+        <div class="col">
+          <pie-chart :data="pie_chart_data" :donut="true" width="800px" height="500px"></pie-chart>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -16,7 +33,8 @@ export default {
       portfolio_investment: 7041.03, // TODO: get this from the user
       portfolio_value: 0.0,
       portfolio_return: 0.0,
-      portfolio_return_pct: 0.0
+      portfolio_return_pct: 0.0,
+      pie_chart_data: []
     }
   },
   created () {
@@ -37,7 +55,8 @@ export default {
             ctx.balances = data
             ctx.calcPortfolioValue()
             ctx.calcPortfolioReturn()
-            // console.log(data)
+            ctx.createPieChart()
+            console.log("ctx.pie_chart_data " + ctx.pie_chart_data)
           })
         }
       )
@@ -58,13 +77,29 @@ export default {
           }
         }
       }
-      this.portfolio_value = totalValue
+      this.portfolio_value = totalValue.toFixed(2)
     },
     calcPortfolioReturn() {
-      console.log(this.portfolio_investment)
-      console.log(this.portfolio_value)
       this.portfolio_return = this.portfolio_value - this.portfolio_investment
-      this.portfolio_return_pct = (this.portfolio_return / this.portfolio_investment) * 100.0
+      this.portfolio_return_pct = ((this.portfolio_return / this.portfolio_investment) * 100.0).toFixed(2)
+    },
+    createPieChart() {
+      var pie_chart_data_array = []
+      for (var item in this.balances) {
+        for (var exchange in this.balances[item]) {
+          if (this.balances[item].hasOwnProperty(exchange)) {
+              for (var coin in this.balances[item][exchange]) {
+                var coinName = Object.keys(this.balances[item][exchange][coin])[0]
+                var coinValue = this.balances[item][exchange][coin][coinName]['usd_value']
+                var portfolio_pct = coinValue / this.portfolio_value
+                var coin_pie_slice = ([coinName, coinValue])
+                pie_chart_data_array.push(coin_pie_slice)
+              }
+          }
+        }
+      }
+      console.log("pie_chart_data_array " + pie_chart_data_array)
+      this.pie_chart_data = pie_chart_data_array
     }
   }
 }
