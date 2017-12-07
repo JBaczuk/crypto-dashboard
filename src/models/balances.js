@@ -165,6 +165,7 @@ export default class {
                         var currencyBalances = []
                         var btc_usd = this.getPrice(exchange, 'USDT-BTC')
                             .then(price => {
+                                var btc_usd = parseFloat(price[Object.keys(price)[0]])
                                 var functionCalls = []
                                 for (var currency in data.result) {
                                     var balance_amount = parseFloat(data.result[currency]['Balance'])
@@ -182,7 +183,7 @@ export default class {
                                                 usd_value = balance_amount
                                             }
                                             else if(ticker === "BTC") {
-                                                usd_value = balance_amount * parseFloat(price[Object.keys(price)[0]])
+                                                usd_value = balance_amount * btc_usd
                                             }
                                             var balance = {}
                                             balance_obj['amount'] = balance_amount
@@ -194,9 +195,13 @@ export default class {
                                 }
                                 Promise.all(functionCalls).then(function (prices) {
                                     for (var btc_price in prices) {
+                                        var balance_obj = {}
                                         var key = Object.keys(prices[btc_price])[0].split("-")[1]
-                                        var btc_value = parseFloat(prices[btc_price][Object.keys(prices[btc_price])[0]])
-                                        var usd_value = btc_value * price[Object.keys(price)[0]]
+                                        var btc_value = balance_amount * parseFloat(prices[btc_price][Object.keys(prices[btc_price])[0]])
+                                        console.log("btc_price: " + btc_usd)
+                                        console.log("btc_value: " + btc_value)
+                                        var usd_value = btc_value * parseFloat(price[Object.keys(price)[0]])
+                                        console.log(usd_value)
                                         var balance = {}
                                         balance_obj['amount'] = balance_amount
                                         balance_obj['usd_value'] = usd_value
