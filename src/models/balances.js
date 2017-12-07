@@ -83,6 +83,7 @@ export default class {
                     if (error) {
                         reject(Error(error))
                     } else {
+                        // FIXME: Handle bad api keys in data.error
                         var exchangeBalance = {}
                         var currencyBalances = []
                         var priceFunctionCalls = []
@@ -126,7 +127,7 @@ export default class {
                     if (err) {
                         reject(Error(error))
                     } else {
-                        // TODO: detect data.error
+                        // FIXME: Handle bad api keys in data.error
                         var exchangeBalance = {}
                         var currencyBalances = []
                         // TODO: implement this:
@@ -160,7 +161,7 @@ export default class {
                     if (err) {
                         reject(Error(err))
                     } else {
-                        // TODO: detect data.error
+                        // FIXME: Handle bad api keys in data.error
                         var exchangeBalance = {}
                         var currencyBalances = []
                         var btc_usd = this.getPrice(exchange, 'USDT-BTC')
@@ -212,7 +213,6 @@ export default class {
                     }
                 }.bind(this))
             }
-            // TODO: Add Bittrex
         }.bind(this))
     }
 }

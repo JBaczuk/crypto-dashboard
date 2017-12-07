@@ -1,6 +1,6 @@
 import Balances from './balances'
 
-var exchanges = ['BITTREX', 'POLONIEX'] //['GDAX', 'POLONIEX', 'BITTREX']
+var exchanges = ['GDAX', 'POLONIEX', 'BITTREX']
 var balance = new Balances(exchanges)
 
 balance.getBalances()
