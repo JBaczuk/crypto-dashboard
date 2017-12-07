@@ -1,7 +1,9 @@
 <template>
   <div id="app">
-    <p>{{ balances }}</p>
-    <p>{{ portfolio_value }}</p>
+    <p>${{ balances }}</p>
+    <p>${{ portfolio_value }}</p>
+    <p>${{ portfolio_return }}</p>
+    <p>{{ portfolio_return_pct }}%</p>
   </div>
 </template>
 
@@ -11,7 +13,10 @@ export default {
   data () {
     return {
       balances: null,
-      portfolio_value: 0
+      portfolio_investment: 7041.03, // TODO: get this from the user
+      portfolio_value: 0.0,
+      portfolio_return: 0.0,
+      portfolio_return_pct: 0.0
     }
   },
   created () {
@@ -31,6 +36,7 @@ export default {
           response.json().then(function(data) {
             ctx.balances = data
             ctx.calcPortfolioValue()
+            ctx.calcPortfolioReturn()
             // console.log(data)
           })
         }
@@ -53,6 +59,12 @@ export default {
         }
       }
       this.portfolio_value = totalValue
+    },
+    calcPortfolioReturn() {
+      console.log(this.portfolio_investment)
+      console.log(this.portfolio_value)
+      this.portfolio_return = this.portfolio_value - this.portfolio_investment
+      this.portfolio_return_pct = (this.portfolio_return / this.portfolio_investment) * 100.0
     }
   }
 }

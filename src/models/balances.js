@@ -198,10 +198,7 @@ export default class {
                                         var balance_obj = {}
                                         var key = Object.keys(prices[btc_price])[0].split("-")[1]
                                         var btc_value = balance_amount * parseFloat(prices[btc_price][Object.keys(prices[btc_price])[0]])
-                                        console.log("btc_price: " + btc_usd)
-                                        console.log("btc_value: " + btc_value)
                                         var usd_value = btc_value * parseFloat(price[Object.keys(price)[0]])
-                                        console.log(usd_value)
                                         var balance = {}
                                         balance_obj['amount'] = balance_amount
                                         balance_obj['usd_value'] = usd_value
