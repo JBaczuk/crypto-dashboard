@@ -3,20 +3,15 @@
 > This is an open source project for managing your cryptocurrency portfolio.
 
 ## Components
-This project has 3 parts:
-1. Self-hosted API Server (root folder)
-2. Single Page Dashboard Application (dashboard folder)
-3. Tradingview charts server
+This project has 2 parts:
+1. Self-hosted API Server (this repo)
+2. [Single Page Dashboard Application](https://github.com/JBaczuk/crypto-dashboard-spa)
 
 ## Run---
 
 ```bash
 # clone the project
 git clone https://github.com/JBaczuk/crypto-dashboard
-```
-
-### API Server
-```bash
 cd crypto-dashboard
 # Credentials
 # Important: Generate Read Only keys!  This application does not require anything more.
@@ -38,12 +33,7 @@ PORT=8000 npm start
 ```
 
 ### Dashboard App
-```bash
-# Install http-server module
-npm install http-server -g
-cd dashboard/dist
-http-server -p 8001
-```
+See instructions at [Single Page Dashboard Application](https://github.com/JBaczuk/crypto-dashboard-spa)
 
 ## Development
 
@@ -57,16 +47,11 @@ PORT=8000 npm run dev
 
 ## Release
 ### v1.0.0
-- Currently supports GDAX, Poloniex, and Bittrex
-- Dashboard using vue.js
-- Calculate profit
-> In progress
-- Price Charts
+- Currently supports Coinbase, GDAX, Poloniex, and Bittrex
 
 ## Future
 - Add support for other exchanges
 - Add history of deposits and withdrawals
-- Chart trade and price history
 - Add trade ability
 - Add bot dashboard
 - create docker containers
@@ -86,8 +71,6 @@ PORT=8000 npm run dev
 - REST resources as middleware via [resource-router-middleware](https://github.com/developit/resource-router-middleware)
 - CORS support via [cors](https://github.com/troygoode/node-cors)
 - Body Parsing via [body-parser](https://github.com/expressjs/body-parser)
-- [Chartkick](https://github.com/ankane/vue-chartkick)
-- [CoreUI Vue](https://github.com/mrholek/CoreUI-Vue)
 
 ## License
 -------
