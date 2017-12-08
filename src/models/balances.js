@@ -57,6 +57,19 @@ export default class {
                     }
                 })
             }
+
+            if (exchange == 'COINBASE') {
+                this.exchange_auth.coinbase.getBuyPrice({'currencyPair': product}, function (error, obj){
+                    if (error) {
+                        reject(Error(error))
+                    } else {
+                        var price_obj = {}
+                        var price = obj.data.amount
+                        price_obj[product] = price
+                        resolve(price_obj)
+                    }
+                })
+            }
         }.bind(this))
     }
 
@@ -78,7 +91,7 @@ export default class {
     async getExchangeBalance(exchange) {
         return new Promise(function (resolve, reject) {
             if (exchange == 'GDAX') {
-                this.exchange_auth.gdaxAuthedClient.getAccounts(function (error, response, data){
+                this.exchange_auth.gdaxAuthedClient.getAccounts(function (error, response, data) {
                     if (error) {
                         reject(Error(error))
                     } else {
@@ -180,10 +193,10 @@ export default class {
                                         } else {
                                             // TODO: add USDT and BTC
                                             var usd_value
-                                            if(ticker === "USDT") {
+                                            if (ticker === "USDT") {
                                                 usd_value = balance_amount
                                             }
-                                            else if(ticker === "BTC") {
+                                            else if (ticker === "BTC") {
                                                 usd_value = balance_amount * btc_usd
                                             }
                                             var balance = {}
@@ -209,6 +222,53 @@ export default class {
                                     exchangeBalance[exchange] = currencyBalances
                                     resolve(exchangeBalance)
                                 })
+                            })
+                    }
+                }.bind(this))
+            }
+            if (exchange == 'COINBASE') {
+                this.exchange_auth.coinbase.getAccounts({}, function (error, data) {
+                    if (error) {
+                        reject(Error(error))
+                    } else {
+                        // FIXME: Handle bad api keys in data.error
+                        var exchangeBalance = {}
+                        var currencyBalances = []
+                        var priceFunctionCalls = []
+                        data.forEach(function (acct) {
+                            var currency = acct.balance.currency
+                            var balance_amount = parseFloat(acct.balance.amount)
+                            var balance = {}
+                            var balance_obj = {}
+                            console.log("currency: " + currency + "balance_amount: " + balance_amount)
+                            // Create array of function calls for promise.all
+                            if (currency !== 'USD' && balance_amount > 0.0) {
+                                priceFunctionCalls.push(this.getPrice(exchange, currency + '-USD'))
+                            } else {
+                                var usd_value = balance_amount
+                                balance_obj['usd_value'] = usd_value
+                            }
+                            balance_obj['amount'] = balance_amount
+                            balance[currency] = balance_obj
+                            currencyBalances.push(balance)
+                        }.bind(this))
+                        Promise.all(priceFunctionCalls).then(function (prices) {
+                            console.log("coinbase prices: " + JSON.stringify(prices))
+                            return prices
+                        })
+                            .then(prices => {
+                                prices.forEach(function (price) {
+                                    currencyBalances.forEach(function (balance) {
+                                        var key = Object.keys(price)[0].split("-")[0]
+                                        if (balance[key] != undefined) {
+                                            var usd_value = balance[key]['amount'] * price[Object.keys(price)[0]]
+                                            balance[key]['usd_value'] = usd_value
+                                        }
+                                    })
+                                })
+                                console.log(exchangeBalance)
+                                exchangeBalance[exchange] = currencyBalances
+                                resolve(exchangeBalance)
                             })
                     }
                 }.bind(this))

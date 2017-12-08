@@ -1,7 +1,6 @@
 import Balances from './balances'
 
-var exchanges = ['GDAX', 'POLONIEX', 'BITTREX']
-var balance = new Balances(exchanges)
+var balance = new Balances()
 
 balance.getBalances()
 .then(function (all_balances) {

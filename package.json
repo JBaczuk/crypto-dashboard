@@ -9,7 +9,8 @@
     "build": "babel src -s -D -d dist --presets es2015,stage-3",
     "start": "node dist",
     "prestart": "npm run -s build",
-    "test": "eslint src"
+    "test": "eslint src",
+    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-3"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -35,6 +36,7 @@
     "body-parser": "^1.13.3",
     "chart.js": "^2.7.1",
     "chartkick": "^2.2.4",
+    "coinbase": "^2.0.6",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
