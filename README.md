@@ -28,7 +28,8 @@ export BITTREX_SECRET=
 yarn
 
 # Start api server:
-PORT=8000 npm start
+# TODO: debug this: PORT=8000 npm start
+PORT=8000 npm run dev
 
 # Start Dashboard
 cd dashboard
@@ -58,7 +59,6 @@ export BITTREX_SECRET=
 yarn install
 
 # Start development live-reload server
-# TODO: debug this: PORT=8000 npm run dev
 PORT=8000 npm run dev
 ```
 
