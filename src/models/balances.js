@@ -1,11 +1,11 @@
 import ExchangeAuth from './exchange_auth.js'
+import Gdax from 'gdax'
 
 export default class {
-    constructor(exchanges) {
-        this.exchanges = exchanges
+    constructor() {
         this.exchange_auth = new ExchangeAuth()
+        this.exchanges = this.exchange_auth.exchanges
     }
-
     /**
     * getPrice
     * Returns a price object of the form:
@@ -20,8 +20,7 @@ export default class {
     getPrice(exchange, product) {
         return new Promise(function (resolve, reject) {
             if (exchange == 'GDAX') {
-                const gdaxPublicClient = new Gdax.PublicClient(product)
-                this.exchange_auth.gdaxPublicClient.getProductTicker((error, response, data) => {
+                this.exchange_auth.gdaxAuthedClient.getProductTicker((error, response, data) => {
                     if (error) {
                         reject(Error(error))
                     } else {
@@ -79,7 +78,7 @@ export default class {
     async getExchangeBalance(exchange) {
         return new Promise(function (resolve, reject) {
             if (exchange == 'GDAX') {
-                this.exchange_auth.gdaxAuthedClient.getAccounts((error, response, data) => {
+                this.exchange_auth.gdaxAuthedClient.getAccounts(function (error, response, data){
                     if (error) {
                         reject(Error(error))
                     } else {
@@ -96,31 +95,32 @@ export default class {
                             if (currency !== 'USD' && balance_amount > 0.0) {
                                 priceFunctionCalls.push(this.getPrice(exchange, currency + '-USD'))
                             } else {
-                                usd_value = balance_amount
+                                var usd_value = balance_amount
                                 balance_obj['usd_value'] = usd_value
                             }
                             balance_obj['amount'] = balance_amount
                             balance[currency] = balance_obj
                             currencyBalances.push(balance)
-                        })
+                        }.bind(this))
                         Promise.all(priceFunctionCalls).then(function (prices) {
                             return prices
                         })
                             .then(prices => {
                                 prices.forEach(function (price) {
                                     currencyBalances.forEach(function (balance) {
-                                        key = Object.keys(price)[0].split("-")[0]
+                                        var key = Object.keys(price)[0].split("-")[0]
                                         if (balance[key] != undefined) {
-                                            usd_value = balance[key]['amount'] * price[Object.keys(price)[0]]
+                                            var usd_value = balance[key]['amount'] * price[Object.keys(price)[0]]
                                             balance[key]['usd_value'] = usd_value
                                         }
                                     })
                                 })
+                                console.log(exchangeBalance)
                                 exchangeBalance[exchange] = currencyBalances
                                 resolve(exchangeBalance)
                             })
                     }
-                })
+                }.bind(this))
             }
             if (exchange == 'POLONIEX') {
                 this.exchange_auth.poloniex.returnCompleteBalances(function (err, data) {

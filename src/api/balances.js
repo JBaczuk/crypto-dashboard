@@ -2,7 +2,7 @@ import resource from 'resource-router-middleware'
 import Balances from '../models/balances'
 
 // TODO: pull this from DB based on user
-var balance = new Balances(['BITTREX', 'POLONIEX'])//, 'GDAX'])
+var balance = new Balances()
 
 export default ({ config, db }) => resource({
 

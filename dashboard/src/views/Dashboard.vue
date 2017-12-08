@@ -5,11 +5,14 @@
         <b-card no-body class="bg-primary">
           <b-card-body class="pb-0">
             <h2 class="mb-0">Crypto Portfolio</h2><br>
-            <h4 class="mb-0">${{portfolio_value}}</h4>
+            <h4 class="mb-0">${{ portfolio_value }}</h4>
+            <p class="lead">${{ portfolio_return }}</p>
             <p class="lead">{{ portfolio_return_pct }}%</p>
           </b-card-body>
         </b-card>
       </b-col>
+    </b-row>
+    <b-row>
       <b-col sm="12" lg="6">
         <b-card header="Portfolio Breakdown">
           <div class="chart-wrapper">
@@ -74,7 +77,7 @@ export default {
       this.portfolio_value = totalValue.toFixed(2)
     },
     calcPortfolioReturn () {
-      this.portfolio_return = this.portfolio_value - this.portfolio_investment
+      this.portfolio_return = (this.portfolio_value - this.portfolio_investment).toFixed(2)
       this.portfolio_return_pct = ((this.portfolio_return / this.portfolio_investment) * 100.0).toFixed(2)
     },
     createPieChart () {
