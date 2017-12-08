@@ -16,6 +16,7 @@ git clone https://github.com/JBaczuk/crypto-dashboard
 cd crypto-dashboard
 
 # Credentials
+# Important: Generate Read Only keys!  This application does not require anything more.
 export GDAX_SECRET=
 export GDAX_KEY=
 export GDAX_PASSPHRASE=
@@ -103,6 +104,7 @@ This repository has a pre-commit script that will check for api keys and prevent
 
 ## Package Info
 - [GDAX node.js](https://github.com/coinbase/gdax-node)
+- [Coinbase node.js](https://github.com/coinbase/coinbase-node)
 - [poloniex.js](https://github.com/premasagar/poloniex.js)
 - [Express ES6 API Starter](https://github.com/developit/express-es6-rest-api)
 - ES6 support via [babel](https://babeljs.io)
