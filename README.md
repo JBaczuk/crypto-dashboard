@@ -4,10 +4,10 @@
 
 ## Components
 This project has two parts:
-1. Self-hosted API (root folder)
-2. Single Page Application (dashboard folder)
+1. Self-hosted API Server (root folder)
+2. Single Page Dashboard Application (dashboard folder)
 
-## Getting Started
+## Run
 ---
 
 ```sh
@@ -27,12 +27,40 @@ export BITTREX_SECRET=
 # Install dependencies
 yarn install
 
+# Start api server:
+PORT=8000 npm start
+
+# Start Dashboard
+cd dashboard
+npm start
+```
+
+
+## Development
+Please submit pull requests to the dev branch.
+
+### Set Up
+```sh
+# clone it
+git clone https://github.com/JBaczuk/crypto-dashboard
+cd crypto-dashboard
+
+# Credentials
+export GDAX_SECRET=
+export GDAX_KEY=
+export GDAX_PASSPHRASE=
+export POLONIEX_KEY=
+export POLONIEX_SECRET=
+export BITTREX_KEY=
+export BITTREX_SECRET=
+
+# Install dependencies
+yarn install
+
 # Start development live-reload server
 PORT=8000 npm run dev
-
-# Start production server:
-PORT=8000 npm start
 ```
+
 Docker Support
 ------
 ```sh
@@ -51,6 +79,7 @@ docker run -p 8080:8080 crypto-dashboard
 #          machine port   
 
 ```
+
 ## Release
 ### v1.0.0
 - Currently supports GDAX, Poloniex, and Bittrex
