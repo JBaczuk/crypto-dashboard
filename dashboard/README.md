@@ -2,6 +2,14 @@
 
 > Open Source Admin Template
 
+## Run
+```
+# Install http-server module
+npm install http-server -g
+cd dist
+http-server -p 8001
+```
+
 ## Build Setup
 
 ``` bash
@@ -30,7 +38,7 @@ npm test
 In another terminal (this is a hack):
 ```bash
 cd tradingview
-python -m SimpleHTTPServer 8001
+http-server -p 8080
 ```
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

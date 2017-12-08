@@ -3,18 +3,21 @@
 > This is an open source project for managing your cryptocurrency portfolio.
 
 ## Components
-This project has two parts:
+This project has 3 parts:
 1. Self-hosted API Server (root folder)
 2. Single Page Dashboard Application (dashboard folder)
+3. Tradingview charts server
 
-## Run
----
+## Run---
 
-```sh
-# clone it
+```bash
+# clone the project
 git clone https://github.com/JBaczuk/crypto-dashboard
-cd crypto-dashboard
+```
 
+### API Server
+```bash
+cd crypto-dashboard
 # Credentials
 # Important: Generate Read Only keys!  This application does not require anything more.
 export GDAX_SECRET=
@@ -24,62 +27,32 @@ export POLONIEX_KEY=
 export POLONIEX_SECRET=
 export BITTREX_KEY=
 export BITTREX_SECRET=
+export COINBASE_KEY=
+export COINBASE_SECRET=
 
 # Install dependencies
 yarn
 
 # Start api server:
-# TODO: debug this: PORT=8000 npm start
-PORT=8000 npm run dev
-
-# Start Dashboard
-cd dashboard
-npm start
+PORT=8000 npm start
 ```
 
+### Dashboard App
+```bash
+# Install http-server module
+npm install http-server -g
+cd dashboard/dist
+http-server -p 8001
+```
 
 ## Development
-- Please submit pull requests to the dev branch.
 
 ### Set Up
-```sh
-# clone it
-git clone https://github.com/JBaczuk/crypto-dashboard
-cd crypto-dashboard
+(same as above)  
 
-# Credentials
-export GDAX_SECRET=
-export GDAX_KEY=
-export GDAX_PASSPHRASE=
-export POLONIEX_KEY=
-export POLONIEX_SECRET=
-export BITTREX_KEY=
-export BITTREX_SECRET=
-
-# Install dependencies
-yarn install
-
+```bash
 # Start development live-reload server
 PORT=8000 npm run dev
-```
-
-Docker Support
-------
-```sh
-cd crypto-dashboard
-
-# Build your docker
-docker build -t crypto-dashboard .
-#            ^      ^           ^
-#          tag  tag name      Dockerfile location
-
-# run your docker
-docker run -p 8080:8080 crypto-dashboard
-#                 ^            ^
-#          bind the port    container tag
-#          to your host
-#          machine port   
-
 ```
 
 ## Release
@@ -96,13 +69,15 @@ docker run -p 8080:8080 crypto-dashboard
 - Chart trade and price history
 - Add trade ability
 - Add bot dashboard
+- create docker containers
 
 ## Development
-This repository has a pre-commit script that will check for api keys and prevent that from being submitted, to protect your account.  To enable it, you must run:
+- Please submit pull requests to the dev branch.
+- This repository has a pre-commit script that will check for api keys and prevent that from being submitted, to protect your account.  To enable it, you must run:
 
 `ln -s ../../pre-commit.sh .git/hooks/pre-commit`
 
-## Package Info
+## Thanks to:
 - [GDAX node.js](https://github.com/coinbase/gdax-node)
 - [Coinbase node.js](https://github.com/coinbase/coinbase-node)
 - [poloniex.js](https://github.com/premasagar/poloniex.js)

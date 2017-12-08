@@ -5,12 +5,12 @@
   "description": "Open source dashboard for managing cryptocurrency portfolio",
   "main": "dist",
   "scripts": {
-    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-3\"",
-    "build": "babel src -s -D -d dist --presets es2015,stage-3",
+    "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
+    "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "prestart": "npm run -s build",
     "test": "eslint src",
-    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-3"
+    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-0"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -34,8 +34,6 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.13.3",
-    "chart.js": "^2.7.1",
-    "chartkick": "^2.2.4",
     "coinbase": "^2.0.6",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
@@ -44,14 +42,16 @@
     "morgan": "^1.8.0",
     "node-bittrex-api": "^0.8.1",
     "poloniex.js": "^0.0.7",
-    "resource-router-middleware": "^0.6.0",
-    "vue-chartkick": "^0.2.0"
+    "resource-router-middleware": "^0.6.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.9.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-stage-0": "^6.5.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "eslint": "^3.1.1",
     "nodemon": "^1.9.2"
   },

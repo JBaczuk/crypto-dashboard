@@ -1,5 +1,6 @@
 import ExchangeAuth from './exchange_auth.js'
 import Gdax from 'gdax'
+import regeneratorRuntime from 'regenerator-runtime'
 
 export default class {
     constructor() {
