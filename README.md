@@ -25,7 +25,7 @@ export BITTREX_KEY=
 export BITTREX_SECRET=
 
 # Install dependencies
-yarn install
+yarn
 
 # Start api server:
 PORT=8000 npm start
@@ -37,7 +37,7 @@ npm start
 
 
 ## Development
-Please submit pull requests to the dev branch.
+- Please submit pull requests to the dev branch.
 
 ### Set Up
 ```sh
@@ -58,6 +58,7 @@ export BITTREX_SECRET=
 yarn install
 
 # Start development live-reload server
+# TODO: debug this: PORT=8000 npm run dev
 PORT=8000 npm run dev
 ```
 
