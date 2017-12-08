@@ -6,6 +6,9 @@
           <b-card-body class="pb-0">
             <h2 class="mb-0">Crypto Portfolio</h2><br>
             <h4 class="mb-0">${{ portfolio_value }}</h4>
+            <b-form-fieldset label="Initial Investment">
+              <b-form-input type="text" id="init_inv" v-on:keyup.enter.native="calcPortfolioReturn" v-model="portfolio_investment"></b-form-input>
+            </b-form-fieldset>
             <p class="lead">${{ portfolio_return }}</p>
             <p class="lead">{{ portfolio_return_pct }}%</p>
           </b-card-body>
@@ -29,7 +32,7 @@ export default {
   data: function () {
     return {
       balances: null,
-      portfolio_investment: 7041.03, // TODO: get this from the user
+      portfolio_investment: 100.00, // TODO: get this from the user
       portfolio_value: 0.0,
       portfolio_return: 0.0,
       portfolio_return_pct: 0.0,
@@ -52,7 +55,6 @@ export default {
             response.json().then(function (data) {
               ctx.balances = data
               ctx.calcPortfolioValue()
-              ctx.calcPortfolioReturn()
               ctx.createPieChart()
             })
           }
@@ -79,6 +81,8 @@ export default {
     calcPortfolioReturn () {
       this.portfolio_return = (this.portfolio_value - this.portfolio_investment).toFixed(2)
       this.portfolio_return_pct = ((this.portfolio_return / this.portfolio_investment) * 100.0).toFixed(2)
+      console.log(this.portfolio_return)
+      console.log(this.portfolio_value)
     },
     createPieChart () {
       var pieChartDataArray = []
@@ -91,7 +95,6 @@ export default {
               var existingCoin = false
               pieChartDataArray.forEach(function (entry) {
                 if (entry[0] === coinName) {
-                  console.log(entry)
                   entry[1] = entry[1] + coinValue
                   existingCoin = true
                 }
@@ -105,7 +108,6 @@ export default {
           }
         }
       }
-      console.log(pieChartDataArray)
       this.pie_chart_data = pieChartDataArray
     }
   }
