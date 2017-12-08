@@ -1,5 +1,8 @@
 <template>
   <div class="animated fadeIn">
+    <b-modal title="Error" v-model="apiKeyErrorModal" @ok="apiKeyErrorModal = false">
+      There are no Coin Exchange API keys set on the API server.  Please see README at <a href="https://github.com/JBaczuk/crypto-dashboard" target="_blank">https://github.com/JBaczuk/crypto-dashboard</a> for more information about how to properly set the environment variables.
+    </b-modal>
     <b-row>
       <b-col sm="6" lg="3">
         <b-card no-body class="bg-primary">
@@ -36,7 +39,8 @@ export default {
       portfolio_value: 0.0,
       portfolio_return: 0.0,
       portfolio_return_pct: 0.0,
-      pie_chart_data: []
+      pie_chart_data: [],
+      apiKeyErrorModal: false
     }
   },
   created () {
@@ -50,9 +54,13 @@ export default {
           function (response) {
             if (response.status !== 200) {
               console.log('Error: ' + response.status)
+              if (response.status === 401) {
+                ctx.apiKeyErrorModal = true
+              }
               return
             }
             response.json().then(function (data) {
+              console.log(data)
               ctx.balances = data
               ctx.calcPortfolioValue()
               ctx.createPieChart()

@@ -16,10 +16,15 @@ export default ({ config, db }) => resource({
 
 	/** GET / - List all entities */
 	index({ params }, res) {
-		balance.getBalances()
-		.then(function (all_balances) {
-			res.json(all_balances)
-		})
+		if(balance.exchanges.length == 0) {
+			res.sendStatus(401);
+		}
+		else {
+			balance.getBalances()
+			.then(function (all_balances) {
+				res.json(all_balances)
+			})
+		}
 	},
 
 	/** GET /:id - Return a given entity */
