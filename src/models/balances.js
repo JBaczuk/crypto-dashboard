@@ -21,7 +21,8 @@ export default class {
     getPrice(exchange, product) {
         return new Promise(function (resolve, reject) {
             if (exchange == 'GDAX') {
-                this.exchange_auth.gdaxAuthedClient.getProductTicker((error, response, data) => {
+                const gdaxPublicClient = new Gdax.PublicClient(product)
+                gdaxPublicClient.getProductTicker((error, response, data) => {
                     if (error) {
                         reject(Error(error))
                     } else {
@@ -129,7 +130,6 @@ export default class {
                                         }
                                     })
                                 })
-                                console.log(exchangeBalance)
                                 exchangeBalance[exchange] = currencyBalances
                                 resolve(exchangeBalance)
                             })
@@ -241,7 +241,6 @@ export default class {
                             var balance_amount = parseFloat(acct.balance.amount)
                             var balance = {}
                             var balance_obj = {}
-                            console.log("currency: " + currency + "balance_amount: " + balance_amount)
                             // Create array of function calls for promise.all
                             if (currency !== 'USD' && balance_amount > 0.0) {
                                 priceFunctionCalls.push(this.getPrice(exchange, currency + '-USD'))
@@ -254,7 +253,6 @@ export default class {
                             currencyBalances.push(balance)
                         }.bind(this))
                         Promise.all(priceFunctionCalls).then(function (prices) {
-                            console.log("coinbase prices: " + JSON.stringify(prices))
                             return prices
                         })
                             .then(prices => {
@@ -267,7 +265,6 @@ export default class {
                                         }
                                     })
                                 })
-                                console.log(exchangeBalance)
                                 exchangeBalance[exchange] = currencyBalances
                                 resolve(exchangeBalance)
                             })

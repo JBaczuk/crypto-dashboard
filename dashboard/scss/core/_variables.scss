@@ -38,7 +38,7 @@ $vimeo:                               #aad450 !default;
 // Navbar
 
 $navbar-height:                       55px !default;
-$navbar-bg:                           $white !default;
+$navbar-bg:                           $gray-800;//#fff !default;
 $navbar-border: (
   bottom: (
     size:                             1px,
@@ -47,7 +47,7 @@ $navbar-border: (
   )
 )  !default;
 $navbar-brand-width:                  155px !default;
-$navbar-brand-bg:                     #fff !default;
+$navbar-brand-bg:                     $gray-800;//#fff !default;
 $navbar-brand-logo:                   url('../img/logo.png') !default;
 $navbar-brand-logo-size:              70px auto !default;
 $navbar-brand-border: (
@@ -141,7 +141,7 @@ $sidebar-footer-borders:              0 !default;
 // Sidebar Minimizer
 
 $sidebar-minimizer-height:            50px !default;
-$sidebar-minimizer-bg:                rgba(0,0,0,.2) !default;
+$sidebar-minimizer-bg:                $gray-800;//rgba(0,0,0,.2) !default;
 $sidebar-minimizer-borders:           0 !default;
 $sidebar-minimizer-indicator-color:   $gray-600 !default;
 $sidebar-minimizer-indicator:         str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 14'%3E%3Cpath fill='#{$sidebar-minimizer-indicator-color}' d='M9.148 2.352l-4.148 4.148 4.148 4.148q0.148 0.148 0.148 0.352t-0.148 0.352l-1.297 1.297q-0.148 0.148-0.352 0.148t-0.352-0.148l-5.797-5.797q-0.148-0.148-0.148-0.352t0.148-0.352l5.797-5.797q0.148-0.148 0.352-0.148t0.352 0.148l1.297 1.297q0.148 0.148 0.148 0.352t-0.148 0.352z'/%3E%3C/svg%3E"), "#", "%23") !default;
@@ -203,7 +203,7 @@ $aside-menu-nav-padding-x:            1rem !default;
 // Footer
 
 $footer-height:                       50px !default;
-$footer-bg:                           $gray-100 !default;
+$footer-bg:                           $gray-800;//$gray-100 !default;
 $footer-color:                        $body-color !default;
 $footer-borders: (
   top: (
