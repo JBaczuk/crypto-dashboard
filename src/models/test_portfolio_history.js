@@ -5,4 +5,5 @@ var exchangeAuth = new ExchangeAuth()
 var exchanges = exchangeAuth.exchanges
 var portfolioHistory = new PortfolioHistory(exchangeAuth, exchanges)
 
-portfolioHistory.getHistoricalPortfolioReturn()
+// portfolioHistory.getHistoricalPortfolioReturn()
+portfolioHistory.getTrades()

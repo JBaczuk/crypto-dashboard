@@ -1,12 +1,35 @@
-import ExchangeAuth from './exchange_auth.js'
-import Gdax from 'gdax'
+import ExchangeAccount from 'exchange_account.js'
 import regeneratorRuntime from 'regenerator-runtime' // required for es6 async functions
 
 export default class {
     constructor() {
-        this.exchange_auth = new ExchangeAuth()
-        this.exchanges = this.exchange_auth.exchanges
+        var exchanges = this.getExchanges()
+        this.exchange_accounts = []
+        exchanges.forEach(function (exchange) {
+            var exchange_account = new ExchangeAccount(exchange)
+            this.exchange_accounts.push(exchange_account)
+        })
+        this.btc_value = 0
+        this.usd_value = 0
     }
+
+    getExchanges() {
+        var exchanges = []
+        if(process.env.GDAX_KEY != undefined && process.env.GDAX_SECRET != undefined && process.env.GDAX_PASSPHRASE != undefined) {
+            exchanges.push('GDAX')
+        }
+        if(process.env.POLONIEX_KEY != undefined && process.env.POLONIEX_SECRET != undefined) {
+            exchanges.push('POLONIEX')
+        }
+        if(process.env.BITTREX_KEY != undefined && process.env.BITTREX_SECRET != undefined) {
+            exchanges.push('BITTREX')
+        }
+        if(process.env.COINBASE_KEY != undefined && process.env.COINBASE_SECRET != undefined) {
+            exchanges.push('COINBASE')
+        }
+        return exchanges
+    }
+
     /**
     * getPrice
     * Returns a price object of the form:
