@@ -10,7 +10,8 @@
     "start": "node dist",
     "prestart": "npm run -s build",
     "test": "eslint src",
-    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-0"
+    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-0",
+    "test_portfolio_history": "babel-node src/models/test_portfolio_history.js --presets es2015,stage-0"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",

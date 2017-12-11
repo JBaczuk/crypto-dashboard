@@ -1,6 +1,6 @@
 import ExchangeAuth from './exchange_auth.js'
 import Gdax from 'gdax'
-import regeneratorRuntime from 'regenerator-runtime'
+import regeneratorRuntime from 'regenerator-runtime' // required for es6 async functions
 
 export default class {
     constructor() {
