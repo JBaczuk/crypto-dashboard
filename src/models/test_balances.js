@@ -1,8 +1,7 @@
-import Balances from './balances'
+import Portfolio from './portfolio.js'
 
-var balance = new Balances()
-
-balance.getBalances()
-.then(function (all_balances) {
-    console.log("all balances: " + JSON.stringify(all_balances))
+var portfolio = new Portfolio()
+portfolio.getBalances()
+.then(function (balances) {
+    console.log(JSON.stringify(balances))
 })
