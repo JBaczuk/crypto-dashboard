@@ -8,6 +8,6 @@ var portfolio = new Portfolio()
 // })
 
 portfolio.getHistoricalPortfolioReturn()
-.then(function (portfolio_return) {
-    console.log('portfolio return: ' + JSON.stringify(portfolio_return))
-})
+// .then(function (portfolio_return) {
+//     console.log('portfolio return: ' + JSON.stringify(portfolio_return))
+// })

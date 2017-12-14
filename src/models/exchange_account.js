@@ -309,47 +309,78 @@ export default class {
             }
         }.bind(this))
     }
+
+    /**
+     * parseHistories
+     * returns trade history.  Provides a uniform trade history format across exchanges.
+     * @param {*} histories 
+     */
+    parseHistories(histories, currency) {
+        console.log('trades in ' + currency + ': ' + histories.length)
+        var trades = []
+        if (this.exchange === 'GDAX') {
+            histories.forEach(function (history) {
+                var trade = {}
+                if (history.type != 'fee') {
+                    trade.datetime = Date.parse(history.created_at)
+                    trade.product = history.details.product_id
+                    if (history.details.product_id != undefined) {
+                        trade.product = history.details.product_id
+                    }
+                    trade.currency = currency
+                    trade.amount = history.amount
+                    trade.balance = history.balance
+                    trades.push(trade)
+                }
+            })
+        }
+        return trades
+    }
     /**
      * getTrades
      * Returns an array of trade history from the specified exchange
      */
+    // TODO: need to get full history using pagination: https://docs.gdax.com/#pagination
     async getTrades() {
+        var trades = []
         if (this.exchange === 'GDAX') {
             let accounts = await this.api.getAccounts()
             var accountHistoryCalls = []
             accounts.forEach(function (account) {
-                // console.log("acct id: " + account.id)
+                console.log('account: ' + JSON.stringify(account))
                 accountHistoryCalls.push(this.api.getAccountHistory(account.id)
+                    .then(function (histories) {
+                        return this.parseHistories(histories, account.currency)
+                    }.bind(this))
                     .catch(function (error) {
                         throw new Error(error)
                     }))
             }.bind(this))
 
             return Promise.all(accountHistoryCalls)
-                .then(histories => {
-                    // console.log(histories)
-                    return histories
+                .then(parsed_histories => {
+                    return parsed_histories
                 })
                 .catch(error => {
                     throw new Error(error)
                 })
         }
-    if(this.exchange === 'COINBASE') {
-        return 'Coinbase not implemented yet'
+        if (this.exchange === 'COINBASE') {
+            return 'Coinbase not implemented yet'
+        }
+        if (this.exchange === 'POLONIEX') {
+            return 'Poloniex not implemented yet'
+        }
+        if (this.exchange === 'BITTREX') {
+            return 'Bittrex not implemented yet'
+        }
     }
-    if(this.exchange === 'POLONIEX') {
-        return 'Poloniex not implemented yet'
+    /**
+     * getHistoricalBitcoinReturn
+     * Returns an array of the cumulative return of Bitcoin on GDAX.
+     */
+    async getHistoricalBitcoinReturn() {
+        return new Promise(function (resolve, reject) {
+        }.bind(this))
     }
-    if(this.exchange === 'BITTREX') {
-        return 'Bittrex not implemented yet'
-    }
-}
-/**
- * getHistoricalBitcoinReturn
- * Returns an array of the cumulative return of Bitcoin on GDAX.
- */
-async getHistoricalBitcoinReturn() {
-    return new Promise(function (resolve, reject) {
-    }.bind(this))
-}
 }
