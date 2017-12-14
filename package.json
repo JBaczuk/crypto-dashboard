@@ -10,7 +10,7 @@
     "start": "node dist",
     "prestart": "npm run -s build",
     "test": "eslint src",
-    "test_balances": "babel-node src/models/test_balances.js --presets es2015,stage-0",
+    "test_portfolio_balance": "babel-node src/models/test_portfolio_balance.js --presets es2015,stage-0",
     "test_portfolio_history": "babel-node src/models/test_portfolio_history.js --presets es2015,stage-0"
   },
   "eslintConfig": {
@@ -39,7 +39,7 @@
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
-    "gdax": "^0.4.2",
+    "gdax": "github:coinbase/gdax-node",
     "morgan": "^1.8.0",
     "node-bittrex-api": "^0.8.1",
     "poloniex.js": "^0.0.7",

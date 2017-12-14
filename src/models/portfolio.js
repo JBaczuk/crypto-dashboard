@@ -29,7 +29,6 @@ export default class {
         }
         return exchanges
     }
-
     async getBalances() {
         var getBalanceCalls = []
         return new Promise(function (resolve, reject) {
@@ -41,20 +40,70 @@ export default class {
             }
             Promise.all(getBalanceCalls).then(function (balances) {
                 resolve(balances)
-            }, function (err) { // TODO: err is not defined
-                reject(Error(err))
             })
         }.bind(this))
     }
     /**
      * getCurrentInvestment
      * Returns the dollar amount that is currently invested (without considering any gains or losses)
-     * This is calculated by the total sum of all deposits in USD minus any withdrawals in USD
+     * This is calculated by the total sum of all deposits in USD minus any withdrawals in USD (currently on 1 account, must be coinbase, only)
      * 
      */
-    getCurrentInvestment() {
+    async getCurrentInvestment() {
+        return new Promise(function (resolve, reject) {
+            for (var exchange_account in this.exchange_accounts) {
+                if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
+                    if (exchange_account === 'COINBASE') {
+                        console.log('coinbase account found!')
+                        this.exchange_accounts[exchange_account].getTransactions()
+                            .then(function (txns) {
+                                console.log('txns: ' + txns)
+                                var total = 0
+                                txns.forEach(function (txn) {
+                                    var transaction = {}
+                                    transaction.type = txn.type
+                                    transaction.amount = txn.amount.amount
+                                    transaction.usd_amount = txn.native_amount.amount
+                                    transaction.currency = txn.amount.currency
+                                    transaction.datetime = txn.created_at
+                                    if (txn.status === 'completed') {
+                                        /**
+                                         * Credits (type=)
+                                         * - buy (buy crypto in Coinbase)
+                                         * - fiat_deposit (deposit USD into Coinbase)
+                                         * - N/A exchange_withdrawal (moving money from GDAX to Coinbase)
+                                         */
+                                        if (txn.type === 'buy' || txn.type === 'fiat_deposit') {
+                                            console.log('adding ' + JSON.stringify(transaction))
+                                            total = total + parseFloat(transaction.usd_amount)
+                                        }
 
+                                        /**
+                                         * Debits (type=)
+                                         * - N/A send (send money to another wallet)
+                                         * - fiat_withdrawal (withdraw USD from Coinbase)
+                                         * - N/A transfer (sending to another Coinbase)
+                                         * - N/A exchange_deposit (moving money from Coinbase to GDAX)
+                                         */
+                                        if (txn.type === 'fiat_withdrawal') {
+                                            console.log('subtracting ' + JSON.stringify(transaction))
+                                            total = total + parseFloat(transaction.usd_amount)
+                                        }
+
+                                        /**
+                                         * Trade (type=)
+                                         * - sell
+                                         */
+                                    }
+                                })
+                                resolve(total)
+                            })
+                    }
+                }
+            }
+        }.bind(this))
     }
+
     /**
      * getHistoricalPortfolioReturn
      * Returns an array of the cumulative return on the portfolio over time. This is calculated in the following steps:
@@ -62,9 +111,19 @@ export default class {
      * 2. Get historical rates on all coins purchased
      * 3. Calculate cumulative return on 1H (TODO) or daily intervals
      */
-    getHistoricalPortfolioReturn() {
-        for (var exchange in this.exchanges) {
-            var transactions = this.getTransactions(exchange)
+    async getHistoricalPortfolioReturn() {
+        var exchange_trades_calls = []
+        for (var exchange_account in this.exchange_accounts) {
+            if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
+                exchange_trades_calls.push(this.exchange_accounts[exchange_account].getTrades())
+            }
         }
+        return Promise.all(exchange_trades_calls)
+            .then(function (trades) {
+                return trades
+            })
+            .catch(function (error) {
+                console.error('error: ' + error)
+            })
     }
 }

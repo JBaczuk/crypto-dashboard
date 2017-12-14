@@ -1,9 +1,13 @@
-import PortfolioHistory from './portfolio_history.js'
-import ExchangeAuth from './exchange_auth.js'
+import Portfolio from './portfolio.js'
 
-var exchangeAuth = new ExchangeAuth()
-var exchanges = exchangeAuth.exchanges
-var portfolioHistory = new PortfolioHistory(exchangeAuth, exchanges)
+var portfolio = new Portfolio()
 
-// portfolioHistory.getHistoricalPortfolioReturn()
-portfolioHistory.getTrades()
+// portfolio.getCurrentInvestment()
+// .then(function (investment) {
+//     console.log(JSON.stringify(investment))
+// })
+
+portfolio.getHistoricalPortfolioReturn()
+.then(function (portfolio_return) {
+    console.log('portfolio return: ' + JSON.stringify(portfolio_return))
+})

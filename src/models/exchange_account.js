@@ -43,7 +43,8 @@ export default class {
     * 
     * @param {*} product 
     */
-    getPrice(product) {
+    // TODO: REFACTOR: returning a promise in async functions not necessary
+    async getPrice(product) {
         return new Promise(function (resolve, reject) {
             if (this.exchange == 'GDAX') {
                 const gdaxPublicClient = new Gdax.PublicClient(product)
@@ -100,6 +101,7 @@ export default class {
         }.bind(this))
     }
 
+    // TODO: return balance in BTC, then calculate the USD value based on Coinbase prices
     async getExchangeBalance() {
         return new Promise(function (resolve, reject) {
             if (this.exchange == 'GDAX') {
@@ -287,75 +289,67 @@ export default class {
      * getTransactions
      * Returns array of transactions (deposits and withdrawals but not trades)
      */
-    getTransactions() {
-        if (this.exchange === 'COINBASE') {
-            // FIXME: In progress
-            this.api.getAccounts({}, function (err, accounts) {
-                accounts.forEach(function (acct) {
-                    //   console.log('my bal: ' + acct.balance.amount + ' for ' + acct.name)
-                    acct.getTransactions(null, function (err, txns) {
-                        var total = 0
-                        txns.forEach(function (txn) {
-                            var transaction = {}
-                            transaction.type = txn.type
-                            transaction.amount = txn.amount.amount
-                            transaction.usd_amount = txn.native_amount.amount
-                            transaction.currency = txn.amount.currency
-                            transaction.datetime = txn.created_at
-                            if (txn.status === 'completed') {
-                                /**
-                                 * Credits (type=)
-                                 * - buy (buy crypto in Coinbase)
-                                 * - fiat_deposit (deposit USD into Coinbase)
-                                 * - exchange_withdrawal (moving money from GDAX to Coinbase)
-                                 */
-
-                                /**
-                                 * Debits (type=)
-                                 * - send (send money to another wallet)
-                                 * - fiat_withdrawal (withdraw USD from Coinbase)
-                                 * - transfer (sending to another Coinbase)
-                                 * - exchange_deposit (moving money from Coinbase to GDAX)
-                                 */
-
-                                /**
-                                 * Trade (type=)
-                                 * - sell
-                                 */
-
-                                // Then it's ok to add
-                                total = total + parseFloat(transaction.usd_amount)
+    async getTransactions() {
+        return new Promise(function (resolve, reject) {
+            if (this.exchange === 'COINBASE') {
+                // FIXME: In progress
+                this.api.getAccounts({}, function (err, accounts) {
+                    accounts.forEach(function (acct) {
+                        //   console.log('my bal: ' + acct.balance.amount + ' for ' + acct.name)
+                        acct.getTransactions(null, function (err, txns) {
+                            if (err) {
+                                reject(Error(err))
                             }
-                            console.log('txn: ' + JSON.stringify(transaction))
+                            else {
+                                resolve(txns)
+                            }
                         })
-                        console.log('total: ' + total)
                     })
                 })
-            })
-        }
+            }
+        }.bind(this))
     }
     /**
      * getTrades
      * Returns an array of trade history from the specified exchange
      */
-    getTrades() {
-        if (this.exchange === 'COINBASE') {
-            this.api.getAccounts(function (error, response, data) {
-                console.log(JSON.stringify(data))
-                data.forEach(function (account) {
-                    console.log("acct id: " + account.id)
-                    this.exchange_auth.gdaxAuthedClient.getAccountHistory(account.id, function (error, response, data) {
-                        console.log(JSON.stringify(data))
-                    })
-                }.bind(this))
+    async getTrades() {
+        if (this.exchange === 'GDAX') {
+            let accounts = await this.api.getAccounts()
+            var accountHistoryCalls = []
+            accounts.forEach(function (account) {
+                // console.log("acct id: " + account.id)
+                accountHistoryCalls.push(this.api.getAccountHistory(account.id)
+                    .catch(function (error) {
+                        throw new Error(error)
+                    }))
             }.bind(this))
+
+            return Promise.all(accountHistoryCalls)
+                .then(histories => {
+                    // console.log(histories)
+                    return histories
+                })
+                .catch(error => {
+                    throw new Error(error)
+                })
         }
+    if(this.exchange === 'COINBASE') {
+        return 'Coinbase not implemented yet'
     }
-    /**
-     * getHistoricalBitcoinReturn
-     * Returns an array of the cumulative return of Bitcoin on GDAX.
-     */
-    getHistoricalBitcoinReturn() {
-        
+    if(this.exchange === 'POLONIEX') {
+        return 'Poloniex not implemented yet'
     }
+    if(this.exchange === 'BITTREX') {
+        return 'Bittrex not implemented yet'
+    }
+}
+/**
+ * getHistoricalBitcoinReturn
+ * Returns an array of the cumulative return of Bitcoin on GDAX.
+ */
+async getHistoricalBitcoinReturn() {
+    return new Promise(function (resolve, reject) {
+    }.bind(this))
+}
 }
