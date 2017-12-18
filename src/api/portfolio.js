@@ -1,8 +1,8 @@
 import resource from 'resource-router-middleware'
-import Balances from '../models/balances'
+import Portfolio from '../models/portfolio'
 
 // TODO: pull this from DB based on user
-var balance = new Balances()
+var portfolio = new Portfolio()
 
 export default ({ config, db }) => resource({
 
@@ -16,13 +16,20 @@ export default ({ config, db }) => resource({
 
 	/** GET / - List all entities */
 	index({ params }, res) {
-		if(balance.exchanges.length == 0) {
+		if(Object.keys(portfolio.exchange_accounts).length == 0) {
 			res.sendStatus(401);
 		}
 		else {
-			balance.getBalances()
+			var portfolio_object = {}
+			portfolio.getBalances()
 			.then(function (all_balances) {
-				res.json(all_balances)
+				portfolio_object.balances = all_balances
+				portfolio.getCurrentInvestment()
+				.then(function (investment) {
+					portfolio_object.investment = investment
+					console.log('ready to send investment: ' + investment)
+					res.json(portfolio_object)
+				})
 			})
 		}
 	},

@@ -234,7 +234,7 @@ export default class {
                                     }
                                     exchangeBalance[this.exchange] = currencyBalances
                                     resolve(exchangeBalance)
-                                })
+                                }.bind(this))
                             })
                     }
                 }.bind(this))
@@ -286,29 +286,27 @@ export default class {
         }.bind(this))
     }
     /**
-     * getTransactions
+     * getFiatTransactions
      * Returns array of transactions (deposits and withdrawals but not trades)
      */
-    async getTransactions() {
-        return new Promise(function (resolve, reject) {
-            if (this.exchange === 'COINBASE') {
-                // FIXME: In progress
-                this.api.getAccounts({}, function (err, accounts) {
-                    accounts.forEach(function (acct) {
-                        //   console.log('my bal: ' + acct.balance.amount + ' for ' + acct.name)
-                        acct.getTransactions(null, function (err, txns) {
-                            if (err) {
-                                reject(Error(err))
-                            }
-                            else {
-                                resolve(txns)
-                            }
-                        })
-                    })
-                })
-            }
-        }.bind(this))
+    async getFiatTransactions() {
+        if (this.exchange === 'COINBASE') {
+            let accounts = await this.api.getAccounts({})
+            var accountTransactionsCalls = []
+            accounts[0].forEach(async function (acct) {
+                // console.log('acct ' + acct)
+                if (acct != undefined) {
+                    accountTransactionsCalls.push(acct.getTransactions({}))
+                }
+            })
+            let accountTransactions = await Promise.all(accountTransactionsCalls)
+            // console.log('accountTransactions: ' + Object.keys(accountTransactions))
+            // console.log('accountTxns[0]: ' + JSON.stringify(accountTxns[0]))
+            // console.log('accountTransactions: ' + accountTransactions)
+            return accountTransactions
+        }
     }
+
 
     /**
      * parseHistories
@@ -342,7 +340,6 @@ export default class {
      */
     // TODO: need to get full history using pagination: https://docs.gdax.com/#pagination
     async getTrades() {
-        var trades = []
         if (this.exchange === 'GDAX') {
             let accounts = await this.api.getAccounts()
             var accountHistoryCalls = []
@@ -374,13 +371,5 @@ export default class {
         if (this.exchange === 'BITTREX') {
             return 'Bittrex not implemented yet'
         }
-    }
-    /**
-     * getHistoricalBitcoinReturn
-     * Returns an array of the cumulative return of Bitcoin on GDAX.
-     */
-    async getHistoricalBitcoinReturn() {
-        return new Promise(function (resolve, reject) {
-        }.bind(this))
     }
 }

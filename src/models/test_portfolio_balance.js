@@ -1,5 +1,4 @@
 import Portfolio from './portfolio.js'
-import { totalmem } from 'os';
 
 var portfolio = new Portfolio()
 portfolio.getBalances()

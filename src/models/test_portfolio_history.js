@@ -7,7 +7,12 @@ var portfolio = new Portfolio()
 //     console.log(JSON.stringify(investment))
 // })
 
-portfolio.getHistoricalPortfolioReturn()
+// portfolio.getHistoricalPortfolioReturn()
 // .then(function (portfolio_return) {
 //     console.log('portfolio return: ' + JSON.stringify(portfolio_return))
 // })
+
+portfolio.getHistoricalBitcoinReturn()
+.then(function (bitoin_return) {
+    // console.log('bitoin return: ' + JSON.stringify(bitoin_return))
+})
