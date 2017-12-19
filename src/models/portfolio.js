@@ -176,7 +176,7 @@ export default class {
                 exchange_trades_calls.push(this.exchange_accounts[exchange_account].getTrades())
             }
         }
-        var trades = Promise.all(exchange_trades_calls)
+        var trades = await Promise.all(exchange_trades_calls)
             .then(function (trades) {
                 return trades
             })
@@ -184,12 +184,25 @@ export default class {
                 console.error('error: ' + error)
             })
 
-        var exchange_btc_historical_price = Promise.all(exchange_btc_historical_calls)
-            .then(function (prices) {
-                return prices
-            })
-            .catch(function (error) {
-                console.error('error: ' + error)
-            })
+        var historicalBalances = []
+        for (var exchange in trades) {
+            if (trades.hasOwnProperty(exchange)) {
+                // console.log('exchange: ' + trades[exchange])
+                var historicalBalance = this.calcHistoricalBalance(trades[exchange])
+                historicalBalances.push(historicalBalance)
+            }
+        }
+        return historicalBalances
+    }
+
+    /**
+     * calcHistoricalBalance
+     * @param {*} trades 
+     */
+    calcHistoricalBalance(trades) {
+        if(Object.keys(trades)[0] === 'GDAX') {
+            console.log('lets get rockin')
+            // TODO
+        }
     }
 }

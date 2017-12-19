@@ -27,7 +27,6 @@ export default ({ config, db }) => resource({
 				portfolio.getCurrentInvestment()
 				.then(function (investment) {
 					portfolio_object.investment = investment
-					console.log('ready to send investment: ' + investment)
 					res.json(portfolio_object)
 				})
 			})

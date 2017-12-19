@@ -201,6 +201,10 @@ export default class {
                                         var ticker = data.result[currency]['Currency']
                                         var functionCall
                                         if (ticker !== "USDT" && ticker !== "BTC") {
+                                            var balance = {}
+                                            balance_obj['amount'] = balance_amount
+                                            balance[ticker] = balance_obj
+                                            currencyBalances.push(balance)
                                             functionCall = this.getPrice('BTC-' + ticker)
                                             functionCalls.push(functionCall)
                                         } else {
@@ -221,16 +225,15 @@ export default class {
                                     }
                                 }
                                 Promise.all(functionCalls).then(function (prices) {
-                                    for (var btc_price in prices) {
-                                        var balance_obj = {}
-                                        var key = Object.keys(prices[btc_price])[0].split("-")[1]
-                                        var btc_value = balance_amount * parseFloat(prices[btc_price][Object.keys(prices[btc_price])[0]])
-                                        var usd_value = btc_value * parseFloat(price[Object.keys(price)[0]])
-                                        var balance = {}
-                                        balance_obj['amount'] = balance_amount
-                                        balance_obj['usd_value'] = usd_value
-                                        balance[key] = balance_obj
-                                        currencyBalances.push(balance)
+                                    for (var price in prices) {
+                                        var key = Object.keys(prices[price])[0].split("-")[1]
+                                        currencyBalances.forEach(function (balance) {
+                                            if(Object.keys(balance)[0] === key) {
+                                                var btc_value = parseFloat(balance[key].amount) * parseFloat(prices[price][Object.keys(prices[price])[0]])
+                                                var usd_value = btc_value * btc_usd
+                                                balance[key]['usd_value'] = usd_value
+                                            }
+                                        })
                                     }
                                     exchangeBalance[this.exchange] = currencyBalances
                                     resolve(exchangeBalance)
@@ -294,15 +297,11 @@ export default class {
             let accounts = await this.api.getAccounts({})
             var accountTransactionsCalls = []
             accounts[0].forEach(async function (acct) {
-                // console.log('acct ' + acct)
                 if (acct != undefined) {
                     accountTransactionsCalls.push(acct.getTransactions({}))
                 }
             })
             let accountTransactions = await Promise.all(accountTransactionsCalls)
-            // console.log('accountTransactions: ' + Object.keys(accountTransactions))
-            // console.log('accountTxns[0]: ' + JSON.stringify(accountTxns[0]))
-            // console.log('accountTransactions: ' + accountTransactions)
             return accountTransactions
         }
     }
@@ -314,12 +313,11 @@ export default class {
      * @param {*} histories 
      */
     parseHistories(histories, currency) {
-        console.log('trades in ' + currency + ': ' + histories.length)
         var trades = []
         if (this.exchange === 'GDAX') {
             histories.forEach(function (history) {
                 var trade = {}
-                if (history.type != 'fee') {
+                if (history.type === 'match' || history.type === 'transfer') {
                     trade.datetime = Date.parse(history.created_at)
                     trade.product = history.details.product_id
                     if (history.details.product_id != undefined) {
@@ -328,6 +326,7 @@ export default class {
                     trade.currency = currency
                     trade.amount = history.amount
                     trade.balance = history.balance
+                    trade.type = history.type
                     trades.push(trade)
                 }
             })
@@ -340,11 +339,11 @@ export default class {
      */
     // TODO: need to get full history using pagination: https://docs.gdax.com/#pagination
     async getTrades() {
+        var exchangeHistoricTrades = {}
         if (this.exchange === 'GDAX') {
             let accounts = await this.api.getAccounts()
             var accountHistoryCalls = []
             accounts.forEach(function (account) {
-                console.log('account: ' + JSON.stringify(account))
                 accountHistoryCalls.push(this.api.getAccountHistory(account.id)
                     .then(function (histories) {
                         return this.parseHistories(histories, account.currency)
@@ -356,20 +355,16 @@ export default class {
 
             return Promise.all(accountHistoryCalls)
                 .then(parsed_histories => {
-                    return parsed_histories
+                    exchangeHistoricTrades[this.exchange] = parsed_histories
+                    return exchangeHistoricTrades
                 })
                 .catch(error => {
                     throw new Error(error)
                 })
         }
-        if (this.exchange === 'COINBASE') {
-            return 'Coinbase not implemented yet'
-        }
-        if (this.exchange === 'POLONIEX') {
-            return 'Poloniex not implemented yet'
-        }
-        if (this.exchange === 'BITTREX') {
-            return 'Bittrex not implemented yet'
+        else {
+            exchangeHistoricTrades[this.exchange] = this.exchange + ' not implemented yet'
+            return exchangeHistoricTrades
         }
     }
 }
