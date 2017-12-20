@@ -14,6 +14,24 @@ export default class {
         this.usd_value = 0
     }
 
+    async initializePortfolio() {
+        var initializeExchangesCalls = []
+        for (var exchange_account in this.exchange_accounts) {
+            if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
+                initializeExchangesCalls.push(this.exchange_accounts[exchange_account].initializeExchange())
+            }
+        }
+        var result = await Promise.all(initializeExchangesCalls)
+            .then(function (result) {
+                return "Portfolio Initialization Success"
+            })
+            .catch(function (error) {
+                console.error('error: ' + error)
+            })
+
+        return result
+    }
+
     getExchanges() {
         var exchanges = []
         if (process.env.GDAX_KEY != undefined && process.env.GDAX_SECRET != undefined && process.env.GDAX_PASSPHRASE != undefined) {
@@ -30,84 +48,37 @@ export default class {
         }
         return exchanges
     }
-    async getBalances() {
-        var getBalanceCalls = []
-        return new Promise(function (resolve, reject) {
-            for (var exchange_account in this.exchange_accounts) {
-                if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
-                    var function_call = this.exchange_accounts[exchange_account].getExchangeBalance()
-                    getBalanceCalls.push(function_call)
-                }
+
+    getBalances() {
+        var balances = []
+        for (var exchange_account in this.exchange_accounts) {
+            if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
+                var balance = this.exchange_accounts[exchange_account].balance
+                balances.push(balance)
             }
-            Promise.all(getBalanceCalls).then(function (balances) {
-                resolve(balances)
-            })
-        }.bind(this))
+        }
+        return balances
     }
+
     /**
      * getCurrentInvestment
      * Returns the dollar amount that is currently invested (without considering any gains or losses)
      * This is calculated by the total sum of all deposits in USD minus any withdrawals in USD (currently on 1 account, must be coinbase, only)
      * 
      */
-    async getCurrentInvestment() {
+    getCurrentInvestment() {
+        var currentInvestment = 0
         for (var exchange_account in this.exchange_accounts) {
             if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
-                if (exchange_account === 'COINBASE') {
-                    // console.log('this.exchange_accounts: ' + JSON.stringify(this.exchange_accounts))
-                    let txns = await this.exchange_accounts[exchange_account].getFiatTransactions()
-                    txns.shift() // remove the pagination object
-                    var total = 0
-                    txns.forEach(function (account_txns_obj) {
-                        let account_txns = account_txns_obj[0]
-                        for (var txn in account_txns) {
-                            // console.log('txn: ' + txn)
-                            // console.log('account_txns: ' + txns)
-
-                            if (account_txns.hasOwnProperty(txn)) {
-                                var transaction = {}
-                                transaction.type = account_txns[txn].type
-                                transaction.amount = account_txns[txn].amount.amount
-                                transaction.usd_amount = account_txns[txn].native_amount.amount
-                                transaction.currency = account_txns[txn].amount.currency
-                                transaction.datetime = account_txns[txn].created_at
-                                if (account_txns[txn].status === 'completed') {
-                                    /**
-                                     * Credits (type=)
-                                     * - buy (buy crypto in Coinbase)
-                                     * - fiat_deposit (deposit USD into Coinbase)
-                                     * - N/A exchange_withdrawal (moving money from GDAX to Coinbase)
-                                     */
-                                    if (account_txns[txn].type === 'buy' || account_txns[txn].type === 'fiat_deposit') {
-                                        // console.log('adding ' + JSON.stringify(transaction))
-                                        total = total + parseFloat(transaction.usd_amount)
-                                    }
-
-                                    /**
-                                     * Debits (type=)
-                                     * - N/A send (send money to another wallet)
-                                     * - fiat_withdrawal (withdraw USD from Coinbase)
-                                     * - N/A transfer (sending to another Coinbase)
-                                     * - N/A exchange_deposit (moving money from Coinbase to GDAX)
-                                     */
-                                    if (account_txns[txn].type === 'fiat_withdrawal') {
-                                        // console.log('subtracting ' + JSON.stringify(transaction))
-                                        total = total + parseFloat(transaction.usd_amount) // should be a negative number
-                                    }
-
-                                    /**
-                                     * Trade (type=)
-                                     * - sell
-                                     */
-                                }
-                            }
-                        }
-                    })
-                    return total
+                var current_exchange_investment = this.exchange_accounts[exchange_account].current_investment
+                if (current_exchange_investment != undefined) {
+                    currentInvestment = currentInvestment + current_exchange_investment
                 }
             }
         }
+        return currentInvestment
     }
+
     /**
      * calculateCumulativeReturns
      * returns an array of return objects representing a cumulative percentage return per period
@@ -116,7 +87,7 @@ export default class {
     calculateCumulativeReturns(historicValue) {
         var historicReturns = []
         historicValue.forEach(function (valueObj, i) {
-            if(i != 0) {
+            if (i != 0) {
                 // console.log('valueObj: ' + valueObj)
                 // console.log('valueObj.value: ' + valueObj.value)
                 // console.log('valueObj.datetime: ' + valueObj.datetime)
@@ -139,13 +110,13 @@ export default class {
      * @param {*} start_date 
      * @param {*} period_seconds
      */
-    async getHistoricalBitcoinReturn(start_date=null, period_seconds=86400) {
+    async getHistoricalBitcoinReturn(start_date = null, period_seconds = 86400) {
         var historicClosePrices = []
         const publicClient = new Gdax.PublicClient(); // Defaults to BTC-USD as product
         try {
-            var historicRates = await publicClient.getProductHistoricRates({'granularity': period_seconds, 'start': start_date})
+            var historicRates = await publicClient.getProductHistoricRates({ 'granularity': period_seconds, 'start': start_date })
         }
-        catch(err) {
+        catch (err) {
             console.error(err)
         }
         for (var rate in historicRates) {
@@ -168,41 +139,14 @@ export default class {
      * 3. Calculate cumulative return on 1H (TODO) or daily intervals
      */
     async getHistoricalPortfolioReturn() {
-        var exchange_trades_calls = []
-        var exchange_btc_historical_calls = []
+        var exchanges_historical_balances = []
         var historicalBTCReturn = await this.getHistoricalBitcoinReturn()
         for (var exchange_account in this.exchange_accounts) {
             if (this.exchange_accounts.hasOwnProperty(exchange_account)) {
-                exchange_trades_calls.push(this.exchange_accounts[exchange_account].getTrades())
+                var exchange_historical_balance = this.exchange_accounts[exchange_account].historical_balance
+                exchanges_historical_balances.push(exchange_historical_balance)
             }
         }
-        var trades = await Promise.all(exchange_trades_calls)
-            .then(function (trades) {
-                return trades
-            })
-            .catch(function (error) {
-                console.error('error: ' + error)
-            })
-
-        var historicalBalances = []
-        for (var exchange in trades) {
-            if (trades.hasOwnProperty(exchange)) {
-                // console.log('exchange: ' + trades[exchange])
-                var historicalBalance = this.calcHistoricalBalance(trades[exchange])
-                historicalBalances.push(historicalBalance)
-            }
-        }
-        return historicalBalances
-    }
-
-    /**
-     * calcHistoricalBalance
-     * @param {*} trades 
-     */
-    calcHistoricalBalance(trades) {
-        if(Object.keys(trades)[0] === 'GDAX') {
-            console.log('lets get rockin')
-            // TODO
-        }
+        return exchanges_historical_balances
     }
 }

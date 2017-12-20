@@ -12,6 +12,21 @@ export default class {
         this.coin_accounts = []
         this.transactions = []
         this.api = this.getApi()
+        this.historical_balance = []
+        this.historical_trades = []
+        this.fiat_transactions = []
+        this.loaded = false
+        this.balance = 0
+        this.current_investment = 0
+    }
+
+    async initializeExchange() {
+        this.balance = await this.getExchangeBalance()
+        this.fiat_transactions = await this.getFiatTransactions()
+        this.historical_trades = await this.getTrades()
+        this.current_investment = await this.getCurrentInvestment()
+        this.historical_balance = await this.getHistoricalBalance()
+        return "Exchange Initialization Success"
     }
     /**
      * getApi
@@ -228,7 +243,7 @@ export default class {
                                     for (var price in prices) {
                                         var key = Object.keys(prices[price])[0].split("-")[1]
                                         currencyBalances.forEach(function (balance) {
-                                            if(Object.keys(balance)[0] === key) {
+                                            if (Object.keys(balance)[0] === key) {
                                                 var btc_value = parseFloat(balance[key].amount) * parseFloat(prices[price][Object.keys(prices[price])[0]])
                                                 var usd_value = btc_value * btc_usd
                                                 balance[key]['usd_value'] = usd_value
@@ -306,6 +321,35 @@ export default class {
         }
     }
 
+    async getCurrentInvestment() {
+        if (this.exchange === 'COINBASE') {
+            let txns = await this.getFiatTransactions()
+            txns.shift() // remove the pagination object
+            var total = 0
+            txns.forEach(function (account_txns_obj) {
+                let account_txns = account_txns_obj[0]
+                for (var txn in account_txns) {
+                    if (account_txns.hasOwnProperty(txn)) {
+                        var transaction = {}
+                        transaction.type = account_txns[txn].type
+                        transaction.amount = account_txns[txn].amount.amount
+                        transaction.usd_amount = account_txns[txn].native_amount.amount
+                        transaction.currency = account_txns[txn].amount.currency
+                        transaction.datetime = account_txns[txn].created_at
+                        if (account_txns[txn].status === 'completed') {
+                            if (account_txns[txn].type === 'buy' || account_txns[txn].type === 'fiat_deposit') {
+                                total = total + parseFloat(transaction.usd_amount)
+                            }
+                            if (account_txns[txn].type === 'fiat_withdrawal') {
+                                total = total + parseFloat(transaction.usd_amount) // should be a negative number
+                            }
+                        }
+                    }
+                }
+            })
+            return total
+        }
+    }
 
     /**
      * parseHistories
@@ -313,6 +357,7 @@ export default class {
      * @param {*} histories 
      */
     parseHistories(histories, currency) {
+        var tradesObj = {}
         var trades = []
         if (this.exchange === 'GDAX') {
             histories.forEach(function (history) {
@@ -331,7 +376,8 @@ export default class {
                 }
             })
         }
-        return trades
+        tradesObj[currency] = trades
+        return tradesObj
     }
     /**
      * getTrades
@@ -365,6 +411,27 @@ export default class {
         else {
             exchangeHistoricTrades[this.exchange] = this.exchange + ' not implemented yet'
             return exchangeHistoricTrades
+        }
+    }
+
+    getHistoricalBalance() {
+        this.calcHistoricalBalance(this.historical_trades)
+    }
+
+    /**
+     * calcHistoricalBalance
+     * @param {*} trades 
+     */
+    calcHistoricalBalance() {
+        if (Object.keys(this.historical_trades)[0] === 'GDAX') {
+            // console.log('lets get rockin')
+            // console.log('account trades: ' + JSON.stringify(this.historical_trades))
+            var exchange_trades = this.historical_trades[Object.keys(this.historical_trades)[0]]
+            for (var account in exchange_trades)
+                if (exchange_trades.hasOwnProperty(account)) {
+                    var account_trades = exchange_trades[account]
+                    // console.log('account: ' + JSON.stringify(exchange_trades[account]))
+                }
         }
     }
 }

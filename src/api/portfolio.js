@@ -16,26 +16,28 @@ export default ({ config, db }) => resource({
 
 	/** GET / - List all entities */
 	index({ params }, res) {
-		if(Object.keys(portfolio.exchange_accounts).length == 0) {
+		if (Object.keys(portfolio.exchange_accounts).length == 0) {
 			res.sendStatus(401);
 		}
 		else {
 			var portfolio_object = {}
-			portfolio.getBalances()
-			.then(function (all_balances) {
-				portfolio_object.balances = all_balances
-				portfolio.getCurrentInvestment()
-				.then(function (investment) {
-					portfolio_object.investment = investment
+			portfolio.initializePortfolio()
+				.then(function (result) {
+					portfolio_object.balances = portfolio.getBalances()
+					portfolio_object.investment = portfolio.getCurrentInvestment()
 					res.json(portfolio_object)
 				})
-			})
 		}
 	},
 
 	/** GET /:id - Return a given entity */
 	read({ exchange }, res) {
-		console.log(exchange)
-		res.json("You want the " + exchange + " balance")
+		portfolio.initializePortfolio()
+		.then(function (result) {
+			portfolio.exchange_accounts[exchange.toUpperCase()].getTrades()
+			.then(function (historical_trades) {
+				res.json(historical_trades)
+			})
+		})
 	}
 })
