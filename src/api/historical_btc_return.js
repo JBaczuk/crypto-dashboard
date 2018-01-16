@@ -23,7 +23,6 @@ export default ({ config, db }) => resource({
 			var portfolio_object = {}
 			portfolio.getHistoricalBitcoinReturn()
 				.then(function (btc_return) {
-					console.log('ready to send btc_return: ' + btc_return)
 					res.json(btc_return)
 				})
 		}

@@ -88,13 +88,8 @@ export default class {
         var historicReturns = []
         historicValue.forEach(function (valueObj, i) {
             if (i != 0) {
-                // console.log('valueObj: ' + valueObj)
-                // console.log('valueObj.value: ' + valueObj.value)
-                // console.log('valueObj.datetime: ' + valueObj.datetime)
                 var returnObj = {}
                 var returnPct = (valueObj.value - historicValue[0].value) / historicValue[0].value
-                // console.log('returnPct: ' + returnPct)
-                // console.log('date: ' + new Date(parseInt(valueObj.datetime) * 1000))
                 returnObj.return = returnPct
                 returnObj.datetime = valueObj.datetime
                 historicReturns.push(returnObj)
@@ -110,11 +105,17 @@ export default class {
      * @param {*} start_date 
      * @param {*} period_seconds
      */
-    async getHistoricalBitcoinReturn(start_date = null, period_seconds = 86400) {
+    async getHistoricalBitcoinReturn(start = null, period_seconds = 86400) {
+        if(start == null) {
+            var currentEpochDate = Math.floor(new Date() / 1000)
+            start = currentEpochDate - (199 * 86400)
+        }
+        console.log('start: ' + start)
         var historicClosePrices = []
         const publicClient = new Gdax.PublicClient(); // Defaults to BTC-USD as product
         try {
-            var historicRates = await publicClient.getProductHistoricRates({ 'granularity': period_seconds, 'start': start_date })
+            var historicRates = await publicClient.getProductHistoricRates({ 'granularity': period_seconds, 'start': start })
+            console.log('historicRates: ' + JSON.stringify(historicRates))
         }
         catch (err) {
             console.error(err)
@@ -146,7 +147,7 @@ export default class {
                 var exchange_historical_balance = this.exchange_accounts[exchange_account].historical_balance
                 exchanges_historical_balances.push(exchange_historical_balance)
             }
-        }
+        }.bind(this)
         return exchanges_historical_balances
     }
 }

@@ -32,11 +32,14 @@ export default ({ config, db }) => resource({
 
 	/** GET /:id - Return a given entity */
 	read({ exchange }, res) {
+		var exchange_object = {}
 		portfolio.initializePortfolio()
 		.then(function (result) {
 			portfolio.exchange_accounts[exchange.toUpperCase()].getTrades()
 			.then(function (historical_trades) {
-				res.json(historical_trades)
+				exchange_object['historical_trades'] = historical_trades
+				exchange_object['balance'] = portfolio.exchange_accounts[exchange.toUpperCase()].balance
+				res.json(exchange_object)
 			})
 		})
 	}
